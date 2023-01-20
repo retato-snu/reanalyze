@@ -20,9 +20,7 @@
   show_args(Array.to_list cmt_infos.cmt_args); *)
   
 
-type var = integer | user_type
-
-and integer = Integer of change
+type var = Integer of change | Type of user_type
 
 and change = {
   move_direction : direction;
@@ -31,9 +29,9 @@ and change = {
 
 and direction = Inc | Dec | Unknown
 
-and quantity = int | Unknown
+and quantity = Amount of int | Unknown
 
-type user_type = {
+and user_type = {
   name : string;
   length : change;
   depth : change;
@@ -42,11 +40,14 @@ type user_type = {
 
 let exec_change change1 change2 = 
   if (change1.move_direction = change2.move_direction) then
-    (match change1.quantity with
+    (match change1.move_quantity with
     |Unknown -> {move_direction = change1.move_direction; move_quantity = Unknown;}
     |_ -> (match change1.move_direction with
       |Unknown -> {move_direction = Unknown; move_quantity = Unknown;}
-      |_ -> {move_direction = change1.move_quantity; move_quantity = (change1.move_quantity + change2.move_quantity);}
+      |_ -> 
+        let Amount(q1) = change1.move_quantity in
+        let Amount(q2) = change2.move_quantity in
+        {move_direction = change1.move_direction; move_quantity = Amount(q1+q2);}
       ))
   else begin
     if change1.move_direction = Unknown
@@ -54,19 +55,16 @@ let exec_change change1 change2 =
     else begin if change2.move_direction = Unknown
       then {move_direction = Unknown; move_quantity = Unknown;}
       else
-        let amount = change1.move_quantity - change2.move_quantity in
+        let Amount(q1) = change1.move_quantity in
+        let Amount(q2) = change2.move_quantity in
+        let amount = q1 + q2 in
         if amount > 0 then
-          {move_direction = change1.move_direction; move_quantity = amount;}
+          {move_direction = change1.move_direction; move_quantity = Amount(amount);}
         else
-          {move_direction = change2.move_direction; move_quantity = -amount;}
+          {move_direction = change2.move_direction; move_quantity = Amount(-amount);}
     end
   end
-
-
-
-
-
-    
+  
 
 let processCmt (cmt_infos : CL.Cmt_format.cmt_infos) =
   Read_cmt.print_info cmt_infos;
