@@ -6,6 +6,7 @@ type t = {
   mutable projectRoot : string;
   mutable suppress : string list;
   mutable termination : bool;
+  mutable termination_exp: bool;
   mutable unsuppress : string list;
 }
 
@@ -18,6 +19,7 @@ let runConfig =
     projectRoot = "";
     suppress = [];
     termination = false;
+    termination_exp = false;
     unsuppress = [];
   }
 
@@ -33,3 +35,7 @@ let exception_ () = runConfig.exception_ <- true
 let noalloc () = runConfig.noalloc <- true
 
 let termination () = runConfig.termination <- true
+
+let termination_exp () = runConfig.termination_exp <- true;
+
+

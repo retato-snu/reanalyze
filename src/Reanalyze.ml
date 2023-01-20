@@ -87,6 +87,7 @@ let runAnalysis ~cmtRoot ~ppf =
   if !Common.Cli.json then EmitJson.start ();
 
   processCmtFiles ~cmtRoot;
+  if runConfig.termination_exp then Termination.reportResults ~ppf;
   if runConfig.dce then (
     DeadException.forceDelayedItems ();
     DeadOptionalArgs.forceDelayedItems ();
@@ -129,6 +130,10 @@ let cli () =
     analysisKindSet := true
   and setTermination cmtRoot =
     RunConfig.termination ();
+    cmtRootRef := cmtRoot;
+    analysisKindSet := true
+  and setTerminationExp cmtRoot = 
+    RunConfig.termination_exp ();
     cmtRootRef := cmtRoot;
     analysisKindSet := true
   and speclist =
@@ -203,6 +208,11 @@ let cli () =
         String (fun s -> setTermination (Some s)),
         "root_path Experimental termination analysis for all the .cmt files \
          under the root path" );
+          
+      ("-termination_exp",
+        Unit(fun() -> setTerminationExp None),
+        "terminatoin another version");
+
       ( "-unsuppress",
         String
           (fun s ->
